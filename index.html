@@ -117,7 +117,7 @@ function rowsFilled(list){return list.some(function(r){for(var k in r)if(String(
 function hasContent(n){
   if(n===1)return !!S.cover.trim(); if(n===2)return rowsFilled(S.breakdown)||!!S.synopsis.trim(); if(n===4)return !!S.blurb.trim();
   if(n===5)return false;
-  if(n===6)return S.noSocials||rowsFilled(S.socials)||!!(S.web.trim()||S.news.trim());
+  if(n===6)return rowsFilled(S.socials)||!!(S.web.trim()||S.news.trim());
   if(n===7)return S.noReviewers||rowsFilled(S.reviewers); return false}
 function status(n){return S.done[n]?["Completed","done"]:hasContent(n)?["In progress","prog"]:["Not started",""]}
 function pill(n){var s=status(n);return '<span class="status '+s[1]+'">'+s[0]+'</span>'}
@@ -164,7 +164,7 @@ function body(n){
   if(n===2)return listHTML(2)+(S.synopsis.trim()?area("f-synopsis","Your earlier synopsis notes","synopsis"):"");
   if(n===4)return area("f-blurb","Your blurb","blurb");
   if(n===5)return "";
-  if(n===6)return tick("f-nosoc","noSocials","I have no current social media profiles",S.noSocials)+listHTML(6)+
+  if(n===6)return listHTML(6)+
                   '<div class="two">'+field("f-web","Website (optional)","web")+field("f-news","Newsletter (optional)","news")+'</div>';
   if(n===7)return tick("f-norev","noReviewers","Potential reviewers not yet identified",S.noReviewers)+listHTML(7);
 }
@@ -226,7 +226,7 @@ function secText(n){
   if(n===2)return h+([rowsText(2),S.synopsis.trim()].filter(Boolean).join("\n\n")||MISS);
   if(n===4)return h+(S.blurb.trim()||MISS);
   if(n===5)return h+"Included as a file in the zipped folder.";
-  if(n===6){var soc=S.noSocials?"No current social media profiles":rowsText(6);
+  if(n===6){var soc=rowsText(6);
     var extra=[];if(S.web.trim())extra.push("Website: "+S.web.trim());if(S.news.trim())extra.push("Newsletter: "+S.news.trim());
     return h+([soc,extra.join("\n")].filter(Boolean).join("\n\n")||MISS)}
   if(n===7)return h+(S.noReviewers?"Potential reviewers not yet identified":(rowsText(7)||MISS));
