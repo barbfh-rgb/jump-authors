@@ -95,7 +95,7 @@ var app=document.getElementById("app");
 var storageOK=true;
 function load(k){try{return localStorage.getItem(k)}catch(e){storageOK=false;return null}}
 function save(k,v){try{localStorage.setItem(k,v)}catch(e){storageOK=false}}
-function blank(){return {name:"",title:"",cover:"",synopsis:"",blurb:"",ch1:"",ch2:"",web:"",news:"",
+function blank(){return {name:"",title:"",words:"",cover:"",synopsis:"",blurb:"",ch1:"",ch2:"",web:"",news:"",
   breakdown:[{a:"",b:"",c:""}],socials:[{a:"",b:"",c:""}],reviewers:[{a:"",b:"",c:"",d:""}],
   noSocials:false,noReviewers:false,done:{},checks:[false,false,false]}}
 var S=blank();
@@ -123,8 +123,8 @@ function pill(n){var s=status(n);return '<span class="status '+s[1]+'">'+s[0]+'<
 
 var GUIDE={
 1:'<p>A brief introduction to you and your book. It is separate from the synopsis.</p>'+
-  '<div class="tight"><p>Include:</p><ul class="plain"><li>Your name</li><li>The working title</li><li>The type of book</li><li>What it is about</li><li>Who it is for</li><li>Your connection to the subject</li><li>How far the manuscript has got</li><li>What you are sending with it</li></ul></div>'+
-  '<div class="tight"><p>A structure to follow:</p><div class="template">Dear Jump &amp; Co Publishing team,\n\nMy name is [name]. I am submitting [working title], a [type] about [subject]. It is for [reader] and explores [brief explanation]. My connection to the subject is [relevant experience]. The manuscript is [status]. I have included [actual materials].\n\nBest wishes,\n[name and preferred contact details]</div></div>'+
+  '<div class="tight"><p>Include:</p><ul class="plain"><li>Your name</li><li>The working title</li><li>The approximate word count</li><li>The type of book</li><li>What it is about</li><li>Who it is for</li><li>Your connection to the subject</li><li>How far the manuscript has got</li><li>What you are sending with it</li></ul></div>'+
+  '<div class="tight"><p>A structure to follow:</p><div class="template">Dear Jump &amp; Co Publishing team,\n\nMy name is [name]. I am submitting [working title], a [type] of approximately [word count] words about [subject]. It is for [reader] and explores [brief explanation]. My connection to the subject is [relevant experience]. The manuscript is [status]. I have included [actual materials].\n\nBest wishes,\n[name and preferred contact details]</div></div>'+
   '<p>List only the materials you are including. State only experience and qualifications you hold.</p>',
 2:'<p>The whole book, including the ending. This is not sales copy.</p>'+
   '<ul class="plain"><li>Memoir: the key events and the ending or where you are today. It does not need a triumphant recovery.</li><li>Nonfiction: the scope, the main ideas and how they progress.</li></ul>'+
@@ -186,6 +186,7 @@ function home(){
    '<p>Prepare your book submission one item at a time. You do not need to have everything ready to begin.</p>'+
    '<p>This guide is here to help and guide with what is needed. It does not write the words for you.</p></div>'+
    '<div class="two">'+field("f-name","Your name","name")+field("f-title","Working title of your book","title")+'</div>'+
+   field("f-words","Approximate word count","words","text","For example, 60,000")+
    '<ul class="list">';
   ITEMS.forEach(function(it){h+='<li><button class="rowbtn" data-go="'+it.n+'"><span class="rname"><span class="rnum">'+it.n+'.</span>'+it.name+'</span>'+pill(it.n)+'</button></li>'});
   h+='</ul><div><button class="btn" data-go="pack">See my submission pack</button></div>'+
@@ -224,7 +225,7 @@ function rowsText(n){
 function packText(){
   var miss="[Not yet completed]",t=[];
   t.push("SUBMISSION TO JUMP & CO PUBLISHING");
-  t.push("Author: "+(S.name.trim()||miss)+"\nWorking title: "+(S.title.trim()||miss));
+  t.push("Author: "+(S.name.trim()||miss)+"\nWorking title: "+(S.title.trim()||miss)+"\nApproximate word count: "+((S.words||"").trim()||miss));
   t.push("1. COVER LETTER\n\n"+(S.cover.trim()||miss));
   t.push("2. SYNOPSIS\n\n"+(S.synopsis.trim()||miss));
   t.push("3. CHAPTER OR SECTION BREAKDOWN\n\n"+(rowsText(3)||miss));
