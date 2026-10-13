@@ -9,7 +9,7 @@
 <style>
 body{margin:0}
 [hidden]{display:none!important}
-/* Layout: one narrow working column. A checklist of seven leads to one item at a time, then the finished pack. */
+/* Layout: one narrow working column. A checklist of items leads to one item at a time, then the finished pack. */
 :root{
   --bg:#FFFFFF; --surface:#FFFFFF; --ink:#141A14; --muted:#4A5A56; --line:#D3DEDB;
   --accent:#004B43; --on-accent:#FFFFFF; --mark:#CC3366; --ok:#0A4A2A; --soft:#FCEEF4;
@@ -104,18 +104,19 @@ function persist(){save(KEY,JSON.stringify(S))}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 
 var ITEMS=[
- {n:1,name:"Cover letter"},{n:2,name:"Synopsis"},{n:3,name:"Chapter or section breakdown"},
- {n:4,name:"Book blurb"},{n:5,name:"First two chapters or sections"},{n:6,name:"Social media profiles and links"},
- {n:7,name:"Potential reviewers"}];
+ {n:1,name:"Cover letter"},{n:2,name:"Synopsis"},{n:4,name:"Book blurb"},
+ {n:5,name:"First two chapters or sections"},{n:6,name:"Social media profiles and links"},{n:7,name:"Potential reviewers"}];
+function idx(n){for(var i=0;i<ITEMS.length;i++)if(ITEMS[i].n===n)return i;return 0}
+function num(n){return idx(n)+1}
 var LISTS={
- 3:{key:"breakdown",add:"Add a chapter or section",one:"Chapter or section",f:[["a","Working title"],["b","Brief summary",1],["c","Purpose in the book",1]]},
+ 2:{key:"breakdown",add:"Add a chapter or section",one:"Chapter or section",f:[["a","Working title"],["b","Brief summary",1]]},
  6:{key:"socials",add:"Add a profile",one:"Profile",f:[["a","Platform"],["b","Link or handle"],["c","Audience or topic note (optional)"]]},
  7:{key:"reviewers",add:"Add a reviewer",one:"Reviewer",f:[["a","Name or outlet"],["b","Why they are suitable",1],["c","Public contact route, if known"],["d","Existing connection"]]}
 };
 function rowsFilled(list){return list.some(function(r){for(var k in r)if(String(r[k]).trim())return true;return false})}
 function hasContent(n){
-  if(n===1)return !!S.cover.trim(); if(n===2)return !!S.synopsis.trim(); if(n===4)return !!S.blurb.trim();
-  if(n===3)return rowsFilled(S.breakdown); if(n===5)return !!(S.ch1.trim()||S.ch2.trim());
+  if(n===1)return !!S.cover.trim(); if(n===2)return rowsFilled(S.breakdown)||!!S.synopsis.trim(); if(n===4)return !!S.blurb.trim();
+  if(n===5)return false;
   if(n===6)return S.noSocials||rowsFilled(S.socials)||!!(S.web.trim()||S.news.trim());
   if(n===7)return S.noReviewers||rowsFilled(S.reviewers); return false}
 function status(n){return S.done[n]?["Completed","done"]:hasContent(n)?["In progress","prog"]:["Not started",""]}
@@ -123,24 +124,21 @@ function pill(n){var s=status(n);return '<span class="status '+s[1]+'">'+s[0]+'<
 
 var GUIDE={
 1:'<p>A brief introduction to you and your book. It is separate from the synopsis.</p>'+
-  '<div class="tight"><p>Include:</p><ul class="plain"><li>Your name</li><li>The working title</li><li>The approximate word count</li><li>The type of book</li><li>What it is about</li><li>Who it is for</li><li>Your connection to the subject</li><li>How far the manuscript has got</li><li>What you are sending with it</li></ul></div>'+
-  '<div class="tight"><p>A structure to follow:</p><div class="template">Dear Jump &amp; Co Publishing team,\n\nMy name is [name]. I am submitting [working title], a [type] of approximately [word count] words about [subject]. It is for [reader] and explores [brief explanation]. My connection to the subject is [relevant experience]. The manuscript is [status]. I have included [actual materials].\n\nBest wishes,\n[name and preferred contact details]</div></div>'+
+  '<div class="tight"><p>Include:</p><ul class="plain"><li>Your name</li><li>The working title</li><li>The approximate word count</li><li>The type of book</li><li>What it is about</li><li>Who it is for</li><li>Your connection to the subject</li><li>What you are sending with it</li></ul></div>'+
+  '<div class="tight"><p>A structure to follow:</p><div class="template">Dear Jump &amp; Co Publishing team,\n\nMy name is [name]. I am submitting [working title], a [type] of approximately [word count] words about [subject]. It is for [reader] and explores [brief explanation]. My connection to the subject is [relevant experience]. I have included [actual materials].\n\nBest wishes,\n[name and preferred contact details]</div></div>'+
   '<p>List only the materials you are including. State only experience and qualifications you hold.</p>',
-2:'<p>The whole book, including the ending. This is not sales copy.</p>'+
+2:'<p>The whole book chapter by chapter or section by section, including the ending. Add one entry for each chapter or section, in order, with a working title and a brief summary.</p>'+
   '<ul class="plain"><li>Memoir: the key events and the ending or where you are today. It does not need a triumphant recovery.</li><li>Nonfiction: the scope, the main ideas and how they progress.</li></ul>'+
-  '<div class="tight"><p>Begin with notes on each of these, then shape them into the synopsis:</p><ul class="plain"><li>Subject</li><li>Reader</li><li>Starting point</li><li>Events or ideas</li><li>How it develops</li><li>Conclusion</li><li>Your perspective</li></ul></div>',
-3:'<p>More informative than a contents list. Add one entry for each chapter or section, in order.</p>'+
-  '<ul class="plain"><li>Memoir: organise by chronology or by themes.</li><li>Nonfiction: organise by the journey the reader takes.</li></ul>'+
   '<p>Use your actual material. Mark anything undecided as provisional.</p>',
 4:'<p>Written for the reader and different from the synopsis. Invite interest without summarising every chapter or section.</p>'+
   '<div class="tight"><p>Cover:</p><ul class="plain"><li>The opening situation or question</li><li>What the book explores</li><li>Your perspective</li><li>What the reader gains</li><li>A closing invitation</li></ul></div>'+
   '<p>Leave out invented endorsements, bestseller claims and promises of healing.</p>',
 5:'<p>Your first two chapters or sections, written by you, in order and labelled.</p>'+
-  '<ul class="plain"><li>Keep them in your preferred editing place.</li><li>Create a sharing link that lets anyone with the link view them.</li><li>Copy the link and paste it below.</li></ul>'+
+  '<ul class="plain"><li>Save them as a file from your preferred editing place.</li><li>Put the file in the folder you send us. The submission pack page shows you how.</li></ul>'+
   '<details><summary>Manuscript layout suggestions</summary><div class="stack" style="margin-top:10px"><p>These are suggestions and not house rules.</p><ul class="plain"><li>A title and author page</li><li>A contents page</li><li>Consistent headings</li><li>Each chapter or section beginning on a new page</li><li>A readable font and spacing</li><li>Page numbers</li><li>Images and tables labelled with their sources</li></ul><p>You do not need a cover, an ISBN, a trim size or a print-ready PDF.</p></div></details>',
-6:'<p>Your existing public profiles only. There is no minimum number of followers.</p><p>Never enter passwords or private account figures.</p>',
+6:'<p>Your existing public profiles only.</p><p>Never enter passwords or private account figures.</p>',
 7:'<p>People or outlets who might review your book. Begin with your own suggestions.</p>'+
-  '<ul class="plain"><li>These are potential reviewers. Nobody needs to have agreed.</li><li>Leave out any editor you have paid to work on the manuscript.</li></ul>'
+  '<ul class="plain"><li>Leave out any editor you have paid to work on the manuscript.</li></ul>'
 };
 
 function field(id,label,key,type,ph){
@@ -163,12 +161,9 @@ function tick(id,key,text,on){return '<label class="check" for="'+id+'"><input t
 
 function body(n){
   if(n===1)return area("f-cover","Your cover letter","cover");
-  if(n===2)return area("f-synopsis","Your synopsis","synopsis");
+  if(n===2)return listHTML(2)+(S.synopsis.trim()?area("f-synopsis","Your earlier synopsis notes","synopsis"):"");
   if(n===4)return area("f-blurb","Your blurb","blurb");
-  if(n===3)return listHTML(3);
-  if(n===5)return field("f-ch1","Link to your first chapter or section","ch1","url","https://")+
-                  field("f-ch2","Link to your second chapter or section","ch2","url","https://")+
-                  '<p class="note">If both are in one document, paste the same link in both boxes.</p>';
+  if(n===5)return "";
   if(n===6)return tick("f-nosoc","noSocials","I have no current social media profiles",S.noSocials)+listHTML(6)+
                   '<div class="two">'+field("f-web","Website (optional)","web")+field("f-news","Newsletter (optional)","news")+'</div>';
   if(n===7)return tick("f-norev","noReviewers","Potential reviewers not yet identified",S.noReviewers)+listHTML(7);
@@ -189,13 +184,13 @@ function home(){
    field("f-words","Approximate word count","words","text","For example, 60,000")+
    field("f-email","Your email address, for emailing your work to yourself (optional)","email","email")+
    '<ul class="list">';
-  ITEMS.forEach(function(it){h+='<li><button class="rowbtn" data-go="'+it.n+'"><span class="rname"><span class="rnum">'+it.n+'.</span>'+it.name+'</span>'+pill(it.n)+'</button></li>'});
+  ITEMS.forEach(function(it,i){h+='<li><button class="rowbtn" data-go="'+it.n+'"><span class="rname"><span class="rnum">'+(i+1)+'.</span>'+it.name+'</span>'+pill(it.n)+'</button></li>'});
   h+='</ul><div><button class="btn" data-go="pack">See my submission pack</button></div>'+
    '<div class="panel stack"><h4>Before you begin</h4><ul class="plain">'+
    '<li>You can use a laptop, a phone or an iPad.</li>'+
    '<li>Your work saves as you type and stays on the device and browser you typed it on.</li>'+
    '<li>If you use different devices, email your work to yourself or copy and paste it elsewhere as you go.</li>'+
-   '<li>Complete the seven items in any order. Tick "This item is completed" when each one is finished.</li>'+
+   '<li>Complete the items in any order. Tick "This item is completed" when each one is finished.</li>'+
    '<li>Nobody at Jump &amp; Co can see your work until you send it.</li>'+
    '<li>To keep a backup, open your submission pack, copy it and paste it into your preferred editing place. Do this each time you finish working.</li>'+
    '<li>If anything becomes large, copy and paste it into your preferred place. Google Docs works well.</li>'+
@@ -208,38 +203,38 @@ function home(){
   app.innerHTML=h;
 }
 function item(n){
-  var it=ITEMS[n-1];
-  app.innerHTML='<div><button class="btn quiet" data-go="home">All seven items</button></div>'+
-   '<div class="bar"><h2><span class="rnum">'+n+'.</span>'+it.name+'</h2><span id="pill">'+pill(n)+'</span></div>'+
+  var i=idx(n),it=ITEMS[i],prev=ITEMS[i-1],next=ITEMS[i+1];
+  app.innerHTML='<div><button class="btn quiet" data-go="home">All items</button></div>'+
+   '<div class="bar"><h2><span class="rnum">'+(i+1)+'.</span>'+it.name+'</h2><span id="pill">'+pill(n)+'</span></div>'+
    '<div class="panel stack">'+GUIDE[n]+'</div>'+
    '<div class="stack">'+body(n)+'</div>'+
    tick("f-done","done","This item is completed",!!S.done[n])+
    mailBox("Email this item to myself","item")+
-   '<div class="bar">'+(n>1?'<button class="btn ghost" data-go="'+(n-1)+'">Back</button>':'<span></span>')+
-   (n<7?'<button class="btn" data-go="'+(n+1)+'">Next item</button>':'<button class="btn" data-go="pack">See my submission pack</button>')+'</div>';
+   '<div class="bar">'+(prev?'<button class="btn ghost" data-go="'+prev.n+'">Back</button>':'<span></span>')+
+   (next?'<button class="btn" data-go="'+next.n+'">Next item</button>':'<button class="btn" data-go="pack">See my submission pack</button>')+'</div>';
 }
 function rowsText(n){
   var L=LISTS[n],out=[];
   S[L.key].forEach(function(r,i){
     var has=false,b=[];L.f.forEach(function(f){var v=String(r[f[0]]).trim();if(v){has=true;b.push(f[1].replace(" (optional)","")+": "+v)}});
-    if(has)out.push((n===3?(out.length+1)+". ":"")+b.join("\n"))});
+    if(has)out.push((n===2?(out.length+1)+". ":"")+b.join("\n"))});
   return out.join("\n\n")}
 var MISS="[Not yet completed]";
 function secText(n){
-  if(n===1)return "1. COVER LETTER\n\n"+(S.cover.trim()||MISS);
-  if(n===2)return "2. SYNOPSIS\n\n"+(S.synopsis.trim()||MISS);
-  if(n===3)return "3. CHAPTER OR SECTION BREAKDOWN\n\n"+(rowsText(3)||MISS);
-  if(n===4)return "4. BOOK BLURB\n\n"+(S.blurb.trim()||MISS);
-  if(n===5)return "5. FIRST TWO CHAPTERS OR SECTIONS\n\nFirst: "+(S.ch1.trim()||MISS)+"\nSecond: "+(S.ch2.trim()||MISS);
+  var h=num(n)+". "+ITEMS[idx(n)].name.toUpperCase()+"\n\n";
+  if(n===1)return h+(S.cover.trim()||MISS);
+  if(n===2)return h+([rowsText(2),S.synopsis.trim()].filter(Boolean).join("\n\n")||MISS);
+  if(n===4)return h+(S.blurb.trim()||MISS);
+  if(n===5)return h+"Included as a file in the zipped folder.";
   if(n===6){var soc=S.noSocials?"No current social media profiles":rowsText(6);
     var extra=[];if(S.web.trim())extra.push("Website: "+S.web.trim());if(S.news.trim())extra.push("Newsletter: "+S.news.trim());
-    return "6. SOCIAL MEDIA PROFILES AND LINKS\n\n"+([soc,extra.join("\n")].filter(Boolean).join("\n\n")||MISS)}
-  if(n===7)return "7. POTENTIAL REVIEWERS\n\n"+(S.noReviewers?"Potential reviewers not yet identified":(rowsText(7)||MISS));
+    return h+([soc,extra.join("\n")].filter(Boolean).join("\n\n")||MISS)}
+  if(n===7)return h+(S.noReviewers?"Potential reviewers not yet identified":(rowsText(7)||MISS));
 }
 function headText(){return "Author: "+(S.name.trim()||MISS)+"\nWorking title: "+(S.title.trim()||MISS)+"\nApproximate word count: "+((S.words||"").trim()||MISS)}
 function packText(){
   var t=["SUBMISSION TO JUMP & CO PUBLISHING",headText()];
-  for(var n=1;n<=7;n++)t.push(secText(n));
+  ITEMS.forEach(function(it){t.push(secText(it.n))});
   return t.join("\n\n\n")}
 function mailBox(label,what){
   return '<div class="stack"><div class="bar"><button class="btn ghost" data-mail="'+what+'">'+label+'</button><span id="mailmsg" class="muted" role="status"></span></div>'+
@@ -248,7 +243,7 @@ function mailMe(what){
   var title=(S.title||"").trim()||"My book";
   var subj,txt;
   if(what==="pack"){subj="Jump & Co submission pack: "+title;txt=packText()}
-  else{subj="Jump & Co "+ITEMS[view-1].name+": "+title;txt=headText()+"\n\n\n"+secText(view)}
+  else{subj="Jump & Co "+ITEMS[idx(view)].name+": "+title;txt=headText()+"\n\n\n"+secText(view)}
   var to=encodeURIComponent((S.email||"").trim());
   var base="mailto:"+to+"?subject="+encodeURIComponent(subj);
   var full=base+"&body="+encodeURIComponent(txt);
@@ -261,17 +256,21 @@ function mailMe(what){
 }
 function pack(){
   var left=ITEMS.filter(function(it){return !S.done[it.n]});
-  var h='<div><button class="btn quiet" data-go="home">All seven items</button></div><h2>Your submission pack</h2>';
+  var h='<div><button class="btn quiet" data-go="home">All items</button></div><h2>Your submission pack</h2>';
   if(left.length){h+='<div class="panel stack"><p>These items are not yet marked as completed:</p><ul class="plain">';
-    left.forEach(function(it){h+='<li><a href="#" data-go="'+it.n+'">'+it.n+'. '+it.name+'</a></li>'});h+='</ul></div>'}
-  h+='<div class="stack"><p class="charm">Check it. Check it again. Third time is a charm.</p>'+
-   tick("f-c0","check0","First check",S.checks[0])+tick("f-c1","check1","Second check",S.checks[1])+tick("f-c2","check2","Third check",S.checks[2])+'</div>'+
-   '<div><label for="pack">Everything you have entered</label><textarea id="pack" readonly>'+esc(packText())+'</textarea></div>'+
+    left.forEach(function(it){h+='<li><a href="#" data-go="'+it.n+'">'+num(it.n)+'. '+it.name+'</a></li>'});h+='</ul></div>'}
+  h+='<div><label for="pack">Everything you have entered</label><textarea id="pack" readonly>'+esc(packText())+'</textarea></div>'+
    '<div class="bar"><button class="btn" id="copy">Copy my pack</button><span id="copied" class="muted" role="status"></span></div>'+
    mailBox("Email my pack to myself","pack")+
-   '<div class="panel stack"><h4>Sending it</h4><ul class="plain"><li>Open a new document in your preferred editing place.</li><li>Paste your pack into it.</li><li>Read it through once more there.</li>'+
-   '<li>Email it to barbara@jumpcopublishing.com.</li>'+
+   '<div class="panel stack"><h4>Sending it</h4><ul class="plain"><li>Open a new document in your preferred editing place.</li><li>Paste your pack into it and save it as a file.</li>'+
+   '<li>Put it in a folder with the file of your first two chapters or sections.</li>'+
+   '<li>Compress (zip) the folder.</li>'+
+   '<li>Email everything in the compressed (zipped) folder to barbara@jumpcopublishing.com.</li>'+
    '<li>You can read more about Jump &amp; Co at <a href="https://jumpcopublishing.com/" target="_blank" rel="noopener">jumpcopublishing.com</a>.</li></ul>'+
+   '<details><summary>How to compress (zip) a folder</summary><ul class="plain" style="margin-top:10px">'+
+   '<li>Windows laptop: right-click the folder and choose Compress to ZIP file, or Send to and then Compressed (zipped) folder.</li>'+
+   '<li>Mac: Control-click the folder and choose Compress.</li>'+
+   '<li>iPhone or iPad: in the Files app, press and hold the folder and choose Compress.</li></ul></details>'+
    '<p class="note">To change anything, go back to the item, edit it and return here.</p></div>';
   app.innerHTML=h;
 }
