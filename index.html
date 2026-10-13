@@ -57,7 +57,7 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
 .status.prog{color:var(--mark);border-color:var(--mark)}
 .status.done{color:var(--ok);border-color:var(--ok)}
 label{display:block;font-size:.95rem;color:var(--muted);margin-bottom:4px}
-input[type=text],input[type=url],input[type=password],textarea{
+input[type=text],input[type=url],input[type=email],input[type=password],textarea{
   width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:10px 12px}
 textarea{min-height:15rem;resize:vertical;line-height:1.5}
 textarea.small{min-height:5rem}
@@ -95,7 +95,7 @@ var app=document.getElementById("app");
 var storageOK=true;
 function load(k){try{return localStorage.getItem(k)}catch(e){storageOK=false;return null}}
 function save(k,v){try{localStorage.setItem(k,v)}catch(e){storageOK=false}}
-function blank(){return {name:"",title:"",words:"",cover:"",synopsis:"",blurb:"",ch1:"",ch2:"",web:"",news:"",
+function blank(){return {name:"",title:"",words:"",email:"",cover:"",synopsis:"",blurb:"",ch1:"",ch2:"",web:"",news:"",
   breakdown:[{a:"",b:"",c:""}],socials:[{a:"",b:"",c:""}],reviewers:[{a:"",b:"",c:"",d:""}],
   noSocials:false,noReviewers:false,done:{},checks:[false,false,false]}}
 var S=blank();
@@ -135,7 +135,7 @@ var GUIDE={
 4:'<p>Written for the reader and different from the synopsis. Invite interest without summarising every chapter or section.</p>'+
   '<div class="tight"><p>Cover:</p><ul class="plain"><li>The opening situation or question</li><li>What the book explores</li><li>Your perspective</li><li>What the reader gains</li><li>A closing invitation</li></ul></div>'+
   '<p>Leave out invented endorsements, bestseller claims and promises of healing.</p>',
-5:'<p>Your first two chapters or sections, written by you, in order, labelled and readable.</p>'+
+5:'<p>Your first two chapters or sections, written by you, in order and labelled.</p>'+
   '<ul class="plain"><li>Keep them in your preferred editing place.</li><li>Create a sharing link that lets anyone with the link view them.</li><li>Copy the link and paste it below.</li></ul>'+
   '<details><summary>Manuscript layout suggestions</summary><div class="stack" style="margin-top:10px"><p>These are suggestions and not house rules.</p><ul class="plain"><li>A title and author page</li><li>A contents page</li><li>Consistent headings</li><li>Each chapter or section beginning on a new page</li><li>A readable font and spacing</li><li>Page numbers</li><li>Images and tables labelled with their sources</li></ul><p>You do not need a cover, an ISBN, a trim size or a print-ready PDF.</p></div></details>',
 6:'<p>Your existing public profiles only. There is no minimum number of followers.</p><p>Never enter passwords or private account figures.</p>',
@@ -187,13 +187,14 @@ function home(){
    '<p>This guide is here to help and guide with what is needed. It does not write the words for you.</p></div>'+
    '<div class="two">'+field("f-name","Your name","name")+field("f-title","Working title of your book","title")+'</div>'+
    field("f-words","Approximate word count","words","text","For example, 60,000")+
+   field("f-email","Your email address, for emailing your work to yourself (optional)","email","email")+
    '<ul class="list">';
   ITEMS.forEach(function(it){h+='<li><button class="rowbtn" data-go="'+it.n+'"><span class="rname"><span class="rnum">'+it.n+'.</span>'+it.name+'</span>'+pill(it.n)+'</button></li>'});
   h+='</ul><div><button class="btn" data-go="pack">See my submission pack</button></div>'+
    '<div class="panel stack"><h4>Before you begin</h4><ul class="plain">'+
-   '<li>Use a laptop, a phone or an iPad.</li>'+
-   '<li>Choose one device and one browser and use the same one every time. Your work stays on the device you typed it on and does not appear on another.</li>'+
-   '<li>Your work saves as you type.</li>'+
+   '<li>You can use a laptop, a phone or an iPad.</li>'+
+   '<li>Your work saves as you type and stays on the device and browser you typed it on.</li>'+
+   '<li>If you use different devices, email your work to yourself or copy and paste it elsewhere as you go.</li>'+
    '<li>Complete the seven items in any order. Tick "This item is completed" when each one is finished.</li>'+
    '<li>Nobody at Jump &amp; Co can see your work until you send it.</li>'+
    '<li>To keep a backup, open your submission pack, copy it and paste it into Google Docs. Do this each time you finish working.</li>'+
@@ -213,6 +214,7 @@ function item(n){
    '<div class="panel stack">'+GUIDE[n]+'</div>'+
    '<div class="stack">'+body(n)+'</div>'+
    tick("f-done","done","This item is completed",!!S.done[n])+
+   mailBox("Email this item to myself","item")+
    '<div class="bar">'+(n>1?'<button class="btn ghost" data-go="'+(n-1)+'">Back</button>':'<span></span>')+
    (n<7?'<button class="btn" data-go="'+(n+1)+'">Next item</button>':'<button class="btn" data-go="pack">See my submission pack</button>')+'</div>';
 }
@@ -222,20 +224,41 @@ function rowsText(n){
     var has=false,b=[];L.f.forEach(function(f){var v=String(r[f[0]]).trim();if(v){has=true;b.push(f[1].replace(" (optional)","")+": "+v)}});
     if(has)out.push((n===3?(out.length+1)+". ":"")+b.join("\n"))});
   return out.join("\n\n")}
+var MISS="[Not yet completed]";
+function secText(n){
+  if(n===1)return "1. COVER LETTER\n\n"+(S.cover.trim()||MISS);
+  if(n===2)return "2. SYNOPSIS\n\n"+(S.synopsis.trim()||MISS);
+  if(n===3)return "3. CHAPTER OR SECTION BREAKDOWN\n\n"+(rowsText(3)||MISS);
+  if(n===4)return "4. BOOK BLURB\n\n"+(S.blurb.trim()||MISS);
+  if(n===5)return "5. FIRST TWO CHAPTERS OR SECTIONS\n\nFirst: "+(S.ch1.trim()||MISS)+"\nSecond: "+(S.ch2.trim()||MISS);
+  if(n===6){var soc=S.noSocials?"No current social media profiles":rowsText(6);
+    var extra=[];if(S.web.trim())extra.push("Website: "+S.web.trim());if(S.news.trim())extra.push("Newsletter: "+S.news.trim());
+    return "6. SOCIAL MEDIA PROFILES AND LINKS\n\n"+([soc,extra.join("\n")].filter(Boolean).join("\n\n")||MISS)}
+  if(n===7)return "7. POTENTIAL REVIEWERS\n\n"+(S.noReviewers?"Potential reviewers not yet identified":(rowsText(7)||MISS));
+}
+function headText(){return "Author: "+(S.name.trim()||MISS)+"\nWorking title: "+(S.title.trim()||MISS)+"\nApproximate word count: "+((S.words||"").trim()||MISS)}
 function packText(){
-  var miss="[Not yet completed]",t=[];
-  t.push("SUBMISSION TO JUMP & CO PUBLISHING");
-  t.push("Author: "+(S.name.trim()||miss)+"\nWorking title: "+(S.title.trim()||miss)+"\nApproximate word count: "+((S.words||"").trim()||miss));
-  t.push("1. COVER LETTER\n\n"+(S.cover.trim()||miss));
-  t.push("2. SYNOPSIS\n\n"+(S.synopsis.trim()||miss));
-  t.push("3. CHAPTER OR SECTION BREAKDOWN\n\n"+(rowsText(3)||miss));
-  t.push("4. BOOK BLURB\n\n"+(S.blurb.trim()||miss));
-  t.push("5. FIRST TWO CHAPTERS OR SECTIONS\n\nFirst: "+(S.ch1.trim()||miss)+"\nSecond: "+(S.ch2.trim()||miss));
-  var soc=S.noSocials?"No current social media profiles":rowsText(6);
-  var extra=[];if(S.web.trim())extra.push("Website: "+S.web.trim());if(S.news.trim())extra.push("Newsletter: "+S.news.trim());
-  t.push("6. SOCIAL MEDIA PROFILES AND LINKS\n\n"+([soc,extra.join("\n")].filter(Boolean).join("\n\n")||miss));
-  t.push("7. POTENTIAL REVIEWERS\n\n"+(S.noReviewers?"Potential reviewers not yet identified":(rowsText(7)||miss)));
+  var t=["SUBMISSION TO JUMP & CO PUBLISHING",headText()];
+  for(var n=1;n<=7;n++)t.push(secText(n));
   return t.join("\n\n\n")}
+function mailBox(label,what){
+  return '<div class="stack"><div class="bar"><button class="btn ghost" data-mail="'+what+'">'+label+'</button><span id="mailmsg" class="muted" role="status"></span></div>'+
+   '<p class="note">This opens the email app on your device with your work in a new email.'+((S.email||"").trim()?'':' Add your email address on the first page and it fills in for you.')+'</p></div>'}
+function mailMe(what){
+  var title=(S.title||"").trim()||"My book";
+  var subj,txt;
+  if(what==="pack"){subj="Jump & Co submission pack: "+title;txt=packText()}
+  else{subj="Jump & Co "+ITEMS[view-1].name+": "+title;txt=headText()+"\n\n\n"+secText(view)}
+  var to=encodeURIComponent((S.email||"").trim());
+  var base="mailto:"+to+"?subject="+encodeURIComponent(subj);
+  var full=base+"&body="+encodeURIComponent(txt);
+  var msg=document.getElementById("mailmsg");
+  if(full.length<=1800){location.href=full;return}
+  function open(){location.href=base+"&body="+encodeURIComponent("Paste your work here.")}
+  try{navigator.clipboard.writeText(txt).then(function(){msg.textContent="Your work is copied. Paste it into the email when it opens.";setTimeout(open,1200)},
+    function(){msg.textContent="This is too long to put in an email for you. Use Copy on the submission pack page, then paste it into an email."})}
+  catch(err){msg.textContent="This is too long to put in an email for you. Use Copy on the submission pack page, then paste it into an email."}
+}
 function pack(){
   var left=ITEMS.filter(function(it){return !S.done[it.n]});
   var h='<div><button class="btn quiet" data-go="home">All seven items</button></div><h2>Your submission pack</h2>';
@@ -245,6 +268,7 @@ function pack(){
    tick("f-c0","check0","First check",S.checks[0])+tick("f-c1","check1","Second check",S.checks[1])+tick("f-c2","check2","Third check",S.checks[2])+'</div>'+
    '<div><label for="pack">Everything you have entered</label><textarea id="pack" readonly>'+esc(packText())+'</textarea></div>'+
    '<div class="bar"><button class="btn" id="copy">Copy my pack</button><span id="copied" class="muted" role="status"></span></div>'+
+   mailBox("Email my pack to myself","pack")+
    '<div class="panel stack"><h4>Sending it</h4><ul class="plain"><li>Open a new Google Doc.</li><li>Paste your pack into it.</li><li>Read it through once more there.</li>'+
    '<li>Email it to barbara@jumpcopublishing.com.</li>'+
    '<li>You can read more about Jump &amp; Co at <a href="https://jumpcopublishing.com/" target="_blank" rel="noopener">jumpcopublishing.com</a>.</li></ul>'+
@@ -266,7 +290,8 @@ app.addEventListener("change",function(e){
   persist();refreshPill();
 });
 app.addEventListener("click",function(e){
-  var t=e.target.closest("[data-go],[data-add],[data-del],[data-clear],#copy,#unlock");if(!t)return;
+  var t=e.target.closest("[data-go],[data-add],[data-del],[data-clear],[data-mail],#copy,#unlock");if(!t)return;
+  if(t.dataset.mail){mailMe(t.dataset.mail);return}
   if(t.dataset.go){e.preventDefault();var g=t.dataset.go;go(g==="home"||g==="pack"?g:+g);return}
   if(t.dataset.add){var L;for(var n in LISTS)if(LISTS[n].key===t.dataset.add)L=LISTS[n];
     var r={};L.f.forEach(function(f){r[f[0]]=""});S[L.key].push(r);persist();render();return}
