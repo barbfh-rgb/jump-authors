@@ -197,12 +197,12 @@ function home(){
    '<li>If you use different devices, email your work to yourself or copy and paste it elsewhere as you go.</li>'+
    '<li>Complete the seven items in any order. Tick "This item is completed" when each one is finished.</li>'+
    '<li>Nobody at Jump &amp; Co can see your work until you send it.</li>'+
-   '<li>To keep a backup, open your submission pack, copy it and paste it into Google Docs. Do this each time you finish working.</li>'+
+   '<li>To keep a backup, open your submission pack, copy it and paste it into your preferred editing place. Do this each time you finish working.</li>'+
    '<li>If anything becomes large, copy and paste it into your preferred place. Google Docs works well.</li>'+
    '</ul>'+
    '<h4>About Jump &amp; Co</h4>'+
    '<p>Jump &amp; Co is an independent publishing company. Some authors who are invited to publish with us will be asked to contribute to the cost of publishing their book.</p>'+
-   (storageOK?'':'<p style="color:var(--mark)">This browser is not saving your work. Copy anything you write into Google Docs before you close the page.</p>')+
+   (storageOK?'':'<p style="color:var(--mark)">This browser is not saving your work. Copy anything you write into your preferred editing place before you close the page.</p>')+
    '</div>'+
    '<div id="clearbox"><button class="btn quiet" data-clear="ask">Clear everything and begin again</button></div>';
   app.innerHTML=h;
@@ -269,7 +269,7 @@ function pack(){
    '<div><label for="pack">Everything you have entered</label><textarea id="pack" readonly>'+esc(packText())+'</textarea></div>'+
    '<div class="bar"><button class="btn" id="copy">Copy my pack</button><span id="copied" class="muted" role="status"></span></div>'+
    mailBox("Email my pack to myself","pack")+
-   '<div class="panel stack"><h4>Sending it</h4><ul class="plain"><li>Open a new Google Doc.</li><li>Paste your pack into it.</li><li>Read it through once more there.</li>'+
+   '<div class="panel stack"><h4>Sending it</h4><ul class="plain"><li>Open a new document in your preferred editing place.</li><li>Paste your pack into it.</li><li>Read it through once more there.</li>'+
    '<li>Email it to barbara@jumpcopublishing.com.</li>'+
    '<li>You can read more about Jump &amp; Co at <a href="https://jumpcopublishing.com/" target="_blank" rel="noopener">jumpcopublishing.com</a>.</li></ul>'+
    '<p class="note">To change anything, go back to the item, edit it and return here.</p></div>';
@@ -302,7 +302,7 @@ app.addEventListener("click",function(e){
   if(t.id==="copy"){
     var ta=document.getElementById("pack"),msg=document.getElementById("copied");
     function fallback(){ta.focus();ta.select();msg.textContent="Your pack is selected. Press Ctrl and C, or Cmd and C on a Mac, to copy it."}
-    try{navigator.clipboard.writeText(ta.value).then(function(){msg.textContent="Copied. Paste it into Google Docs."},fallback)}catch(err){fallback()}
+    try{navigator.clipboard.writeText(ta.value).then(function(){msg.textContent="Copied. Paste it into your preferred editing place."},fallback)}catch(err){fallback()}
   }
 });
 
